@@ -5,33 +5,31 @@ Allegro Hand Standalone Visual Studio Project and Source
 
 
 ========================================================================
-    CONSOLE APPLICATION : myAllegroHand Project Overview
+    CONSOLE APPLICATION : allegro_hand_windows Project Overview
 ========================================================================
-
-AppWizard has created this myAllegroHand application for you.
 
 This file contains a summary of what you will find in each of the files that
 make up your myAllegroHand application.
 
 
-myAllegroHand.vcproj
+*myAllegroHand.vcproj*
     This is the main project file for VC++ projects generated using an Application Wizard.
     It contains information about the version of Visual C++ that generated the file, and
     information about the platforms, configurations, and project features selected with the
     Application Wizard.
 
-myAllegroHand.cpp
+*myAllegroHand.cpp*
     This is the main application source file.
 
 /////////////////////////////////////////////////////////////////////////////
-Other standard files:
+*Other standard files:*
 
 StdAfx.h, StdAfx.cpp
     These files are used to build a precompiled header (PCH) file
     named myAllegroHand.pch and a precompiled types file named StdAfx.obj.
 
 /////////////////////////////////////////////////////////////////////////////
-Other notes:
+*Other notes:*
 
 AppWizard uses "TODO:" comments to indicate parts of the source code you
 should add to or customize.
@@ -45,3 +43,7 @@ setup information can be gathered deirectly from the screenshots.
 
 
 /////////////////////////////////////////////////////////////////////////////
+*Questions?:*
+
+Please email Alex Alspach
+alexalspach@simlab.co.kr
