@@ -37,7 +37,7 @@ For more information regarding setting the project properties, etc., please see 
 
 
 
-**Questions?:**
+**Questions?**
 
 Please email Alex Alspach
 alexalspach@simlab.co.kr
