@@ -35,6 +35,12 @@ double tau_des[MAX_DOF];
 double cur_des[MAX_DOF];
 
 
+
+// USER HAND CONFIGURATION
+bool RIGHT_HAND = true;
+int	 HAND_VERSION = 3;
+
+
 // v3.x
 const int enc_offset[MAX_DOF] = { // SAH030AR023
 	-1700, -568, -3064, -36,
@@ -170,6 +176,24 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 						{
 							// the index order for motors is different from that of encoders
 
+							switch (HAND_VERSION)
+							{
+								case 2:
+									vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*800.0);
+									vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*800.0);
+									vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*800.0);
+									vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*800.0);
+									break;
+
+								case 3:
+								default:
+									vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*1200.0);
+									vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*1200.0);
+									vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*1200.0);
+									vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*1200.0);	
+									break;
+							}
+
 							// 2.0
 							/*
 							vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*800.0);
@@ -180,12 +204,12 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 							
 
 							// 3.0
-							
+							/*
 							vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*1200.0);
 							vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*1200.0);
 							vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*1200.0);
 							vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*1200.0);							
-							
+							*/
 
 							write_current(CAN_Ch, i, &vars.pwm_demand[4*i]);
 							for(int k=0; k<100000; k++);
@@ -266,6 +290,7 @@ void MainLoop()
 			switch (c)
 			{
 			case 'q':
+				if (pBHand) pBHand->SetMotionType(eMotionType_NONE);
 				bRun = false;
 				break;
 			
@@ -381,10 +406,10 @@ void CloseCAN()
 void PrintInstruction()
 {
 	printf("--------------------------------------------------\n");
-	printf("myAllegroHand\n");
-	printf("Keyboard Commands:\n\n");
+	printf("myAllegroHand: ");
+	if (RIGHT_HAND) printf("Right Hand, v%i.x\n\n", HAND_VERSION); else printf("Left Hand, v%i.x\n\n", HAND_VERSION);
 
-	
+	printf("Keyboard Commands:\n");
 	printf("H: Home Position (PD control)\n");
 	printf("R: Ready Position (used before grasping)\n");	
 	printf("G: Three-Finger Grasp\n");
@@ -466,7 +491,13 @@ int GetCANChannelIndex(const TCHAR* cname)
 
 bool CreateBHandAlgorithm()
 {
-	pBHand = bhCreateRightHand();
+	if ( RIGHT_HAND ) {
+		pBHand = bhCreateRightHand();
+	}
+	else {
+		pBHand = bhCreateLeftHand();
+	}
+
 	if (!pBHand) return false;
 	pBHand->SetTimeInterval(delT);
 	return true;
