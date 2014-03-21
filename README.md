@@ -1,6 +1,40 @@
 allegro_hand_windows
 ====================
 
+This application is lightweight control and communication software for the Allegro Hand (AH) using Windows.
+* Currently this software only works with PEAK CAN-USB interfaces.
+
+myAllegroHand*.exe:
+ Allegro Hand control and CAN communication module.
+
+rPanelManipulator.exe 
+ GUI Interface for executing different control and grasp modes
+ 
+ 
+Instructions
+============ 
+
+If you have Visual Studio Installed:
+  1. Open up the solution, myAllegroHand.sln
+  2. Right click the project 'myAllegroHand' in the Solution Explorer and click 'Properties'
+  3. At the top of the 'Property Pages' window, set Configuration to 'All Configurations'
+  4. Navigate to Configuration Properties > Debugging and set the Working Directory to 'bin'
+  5. Open myAllegroHand.cpp and, near the top, find comment '// USER HAND CONFIGURATION' and the constants below it
+
+  6. const bool RIGHT_HAND: Set to 'true' if using a right AH and false if using left
+  7. const int HAND_VERSION: For version 2.x, set to '2', for version 3.x, set to '3', etc.
+  8. const int enc_offset[MAX_DOF]: Encoder offsets
+  9. const double enc_dir[MAX_DOF]: Encoder Directions (Signs)
+ 10. const double motor_dir[MAX_DOF]: Motor Directions (Signs)
+
+ * Offsets and directions for your hand can be found at simlab.co.kr/wiki/allegrohand, from the DMLs for your hand, or via email <alexalspach@simlab.com>.
+ 
+You are now ready to compile, plug in and turn on your hand, and test the program.
+Keyboard commands can be used to execute grasps and other joint configurations. 
+See the instructions printed at the beginning of the application.
+
+=====
+
 Allegro Hand Standalone Visual Studio Project and Source
 
 This file contains a summary of what you will find in each of the files that make up your myAllegroHand application.

@@ -37,8 +37,8 @@ double cur_des[MAX_DOF];
 
 
 // USER HAND CONFIGURATION
-bool RIGHT_HAND = true;
-int	 HAND_VERSION = 3;
+const bool	RIGHT_HAND = true;
+const int	HAND_VERSION = 3;
 
 
 // v3.x
