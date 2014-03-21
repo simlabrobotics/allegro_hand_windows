@@ -33,24 +33,66 @@ BHand* pBHand = NULL;
 double q[MAX_DOF];
 double tau_des[MAX_DOF];
 double cur_des[MAX_DOF];
-const int enc_offset[MAX_DOF] = { // SAH020CR020
-	-611, -66016, 1161, 1377,
-	-342, -66033, -481, 303,
-	30, -65620, 446, 387,
-	-3942, -626, -65508, -66768
+
+
+// v3.x
+const int enc_offset[MAX_DOF] = { // SAH030AR023
+	-1700, -568, -3064, -36,
+	-2015, -1687, 188, -772,
+	-3763, 782, -3402, 368,
+	1059, -2547, -692, 2411
 };
-const double enc_dir[MAX_DOF] = { // SAH020CR020
-	1.0, -1.0, 1.0, 1.0,
-	1.0, -1.0, 1.0, 1.0,
-	1.0, -1.0, 1.0, 1.0,
-	1.0, 1.0, -1.0, -1.0
-};
-const double motor_dir[MAX_DOF] = { // SAH020CR020
+
+const double enc_dir[MAX_DOF] = { // v3.0
 	1.0, 1.0, 1.0, 1.0,
-	1.0, -1.0, -1.0, 1.0,
-	-1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0
 };
+const double motor_dir[MAX_DOF] = { // v3.0
+	1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0,
+	1.0, 1.0, 1.0, 1.0
+};
+
+
+// v2.x
+/*
+const int enc_offset[MAX_DOF] = { // SAH030AR022
+	1485, -13, 211, 234,
+	0, 282, 2174, -2291,
+	1698, 1782, -2351, 793,
+	466, 2397, 2594, 270
+};
+*/
+
+
+/*
+const int enc_offset[MAX_DOF] = { // SAH020BR013
+	-391,	-64387,	-129,	 532,
+	 178,	-66030,	-142,	 547,
+	-234,	-64916,	 7317,	 1923,
+	 1124,	-1319,	-65983, -65566
+};
+
+
+const double enc_dir[MAX_DOF] = { // v2.0
+	1.0, -1.0,  1.0,  1.0,
+	1.0, -1.0,  1.0,  1.0,
+	1.0, -1.0,  1.0,  1.0,
+	1.0,  1.0, -1.0, -1.0
+};
+const double motor_dir[MAX_DOF] = { // v2.0
+	 1.0,  1.0,  1.0, 1.0,
+	 1.0, -1.0, -1.0, 1.0,
+	-1.0,  1.0,  1.0, 1.0,
+	 1.0,  1.0,  1.0, 1.0
+};
+*/
+
+
+
 
 ///////////////////////////////////////
 // functions
@@ -110,6 +152,8 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 						for (i=0; i<MAX_DOF; i++)
 							q[i] = (double)(vars.enc_actual[i]*enc_dir[i]-32768-enc_offset[i])*(333.3/65536.0)*(3.141592/180.0);
 
+						//printf("%f\n",q[5]);
+
 						// compute joint torque
 						ComputeTorque();
 
@@ -125,10 +169,23 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 						for (int i=0; i<4;i++)
 						{
 							// the index order for motors is different from that of encoders
+
+							// 2.0
+							/*
 							vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*800.0);
 							vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*800.0);
 							vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*800.0);
 							vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*800.0);
+							*/
+							
+
+							// 3.0
+							
+							vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*1200.0);
+							vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*1200.0);
+							vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*1200.0);
+							vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*1200.0);							
+							
 
 							write_current(CAN_Ch, i, &vars.pwm_demand[4*i]);
 							for(int k=0; k<100000; k++);
@@ -210,6 +267,38 @@ void MainLoop()
 			{
 			case 'q':
 				bRun = false;
+				break;
+			
+			case 'h':
+				if (pBHand) pBHand->SetMotionType(eMotionType_HOME);
+				break;
+			
+			case 'r':
+				if (pBHand) pBHand->SetMotionType(eMotionType_READY);
+				break;
+			
+			case 'g':
+				if (pBHand) pBHand->SetMotionType(eMotionType_GRASP_3);
+				break;
+			
+			case 'p':
+				if (pBHand) pBHand->SetMotionType(eMotionType_PINCH_IT);
+				break;
+			
+			case 'm':
+				if (pBHand) pBHand->SetMotionType(eMotionType_PINCH_MT);
+				break;
+			
+			case 'a':
+				if (pBHand) pBHand->SetMotionType(eMotionType_GRAVITY_COMP);
+				break;
+
+			case 'e':
+				if (pBHand) pBHand->SetMotionType(eMotionType_ENVELOP);
+				break;
+
+			case 'o':
+				if (pBHand) pBHand->SetMotionType(eMotionType_NONE);
 				break;
 			}
 		}
