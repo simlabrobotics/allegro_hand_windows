@@ -280,6 +280,10 @@ void MainLoop()
 			case 'g':
 				if (pBHand) pBHand->SetMotionType(eMotionType_GRASP_3);
 				break;
+
+			case 'k':
+				if (pBHand) pBHand->SetMotionType(eMotionType_GRASP_4);
+				break;
 			
 			case 'p':
 				if (pBHand) pBHand->SetMotionType(eMotionType_PINCH_IT);
@@ -378,9 +382,22 @@ void PrintInstruction()
 {
 	printf("--------------------------------------------------\n");
 	printf("myAllegroHand\n");
-	printf("\n");
-	printf("To quit this program, press 'q'.\n");
-	printf("--------------------------------------------------\n");
+	printf("Keyboard Commands:\n\n");
+
+	
+	printf("H: Home Position (PD control)\n");
+	printf("R: Ready Position (used before grasping)\n");	
+	printf("G: Three-Finger Grasp\n");
+	printf("K: Four-Finger Grasp\n");
+	printf("P: Two-finger pinch (index-thumb)\n");
+	printf("M: Two-finger pinch (middle-thumb)\n");
+	printf("E: Envelop Grasp (all fingers)\n");
+	printf("A: Gravity Compensation\n\n");
+
+	printf("O: Servos OFF (any grasp cmd turns them back on)\n");
+	printf("Q: Quit this program\n");
+
+	printf("--------------------------------------------------\n\n");
 }
 
 int GetCANChannelIndex(const TCHAR* cname)
