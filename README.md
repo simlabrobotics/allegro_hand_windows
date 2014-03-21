@@ -5,11 +5,9 @@ This application is lightweight control and communication software for the Alleg
 Currently this software only works with PEAK CAN-USB interfaces.
 
 myAllegroHand*.exe:
-
  Allegro Hand control and CAN communication module.
 
 rPanelManipulator.exe 
-
  GUI Interface for executing different control and grasp modes
  
  
@@ -31,6 +29,7 @@ Instructions
  * Offsets and directions for your hand can be found at simlab.co.kr/wiki/allegrohand, from the DMLs for your hand, or via email <alexalspach@simlab.com>.
  
 You are now ready to compile, plug in and turn on your hand, and test the program.
+
 Keyboard commands can be used to execute grasps and other joint configurations. 
 See the instructions printed at the beginning of the application.
 
