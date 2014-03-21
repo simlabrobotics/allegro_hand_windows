@@ -178,6 +178,7 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 
 							switch (HAND_VERSION)
 							{
+								case 1:
 								case 2:
 									vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*800.0);
 									vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*800.0);
