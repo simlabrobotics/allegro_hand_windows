@@ -5,14 +5,20 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myAllegroHand", "myAllegroH
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
-		Release|Win32 = Release|Win32
+		IXXAT Debug|Win32 = IXXAT Debug|Win32
+		IXXAT Release|Win32 = IXXAT Release|Win32
+		Peak Debug|Win32 = Peak Debug|Win32
+		Peak Release|Win32 = Peak Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1EA8B366-194E-411B-A872-5DE961E92066}.Debug|Win32.ActiveCfg = Debug|Win32
-		{1EA8B366-194E-411B-A872-5DE961E92066}.Debug|Win32.Build.0 = Debug|Win32
-		{1EA8B366-194E-411B-A872-5DE961E92066}.Release|Win32.ActiveCfg = Release|Win32
-		{1EA8B366-194E-411B-A872-5DE961E92066}.Release|Win32.Build.0 = Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.IXXAT Debug|Win32.ActiveCfg = IXXAT Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.IXXAT Debug|Win32.Build.0 = IXXAT Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.IXXAT Release|Win32.ActiveCfg = IXXAT Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.IXXAT Release|Win32.Build.0 = IXXAT Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Peak Debug|Win32.ActiveCfg = Peak Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Peak Debug|Win32.Build.0 = Peak Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Peak Release|Win32.ActiveCfg = Peak Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Peak Release|Win32.Build.0 = Peak Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

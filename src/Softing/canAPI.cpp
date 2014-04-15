@@ -28,7 +28,18 @@ CANAPI_BEGIN
 
 static CAN_HANDLE hCAN[CH_COUNT] = {-1, -1}; // CAN channel handles
 
-
+const char* szCanDevType[] = {
+	"",
+	"CANcard2",
+	"CAN-ACx-PCI",
+	"CAN-ACx-PCI/DN",
+	"CAN-ACx-104",
+	"CANusb",
+	"CAN-PROx-PCIe", 
+	"CAN-PROx-PC104+",
+	"CANpro USB", 
+	"EDICcard2",
+};
 
 int canWrite(CAN_HANDLE handle,
 			 unsigned long id, 
@@ -122,6 +133,115 @@ int command_can_open(int ch)
 	L2Config.s32Tseg1 = 4;
 	L2Config.s32Tseg2 = 3;
 	L2Config.hEvent = (void*)-1;
+	ret = CANL2_initialize_fifo_mode(hCAN[ch-1], &L2Config);
+	if (ret)
+	{
+		printf("\tError: CAN set fifo mode\n");
+		INIL2_close_channel(hCAN[ch-1]);
+		hCAN[ch-1] = 0;
+		return ret;
+	}
+
+	return 0;
+}
+
+int command_can_open_ex(int ch, int type, int index)
+{
+	assert(ch >= 1 && ch <= CH_COUNT);
+	assert(type >= 1 && type < 9/*eCanDevType_COUNT*/);
+	assert(index >= 1 && index <= 8);
+
+	int ret = 0;
+
+	////////////////////////////////////////////////////////////////////////
+	// Init Channel
+	char ch_name[256];
+	sprintf_s(ch_name, 256, "%s_%d", szCanDevType[type], index);
+	printf("Open CAN channel[%d]: %s...\n", ch, ch_name);
+//hCAN[0] = -1;
+	ret = INIL2_initialize_channel(&hCAN[ch-1], ch_name);
+	if (ret)
+	{
+		switch (ret) {
+			case -536215551: printf("  Internal Error.\n"); break;
+			case -536215550: printf("  General Error.\n"); break;
+			case -536215546: printf("  Illegal driver call.\n"); break;
+			case -536215542: printf("  Driver not loaded / not installed, or device is not plugged.\n"); break;
+			case -536215541: printf("  Out of memory.\n"); break;
+			case -536215531: printf("  An error occurred while hooking the interrupt service routine.\n"); break;
+			case -536215523: printf("  Device not found.\n"); break;
+			case -536215522: printf("  Can not get a free address region for DPRAM from system.\n"); break;
+			case -536215521: printf("  Error while accessing hardware.\n"); break;
+			case -536215519: printf("  Can not access the DPRAM memory.\n"); break;
+			case -536215516: printf("  Interrupt does not work/Interrupt test failed!\n"); break;
+			case -536215514: printf("  Device is already open.\n"); break;
+			case -536215512: printf("  An incompatible firmware is running on that device. (CANalyzer/CANopen/DeviceNet firmware)\n"); break;
+			case -536215511: printf("  Channel can not be accessed, because it is not open.\n"); break;
+			case -536215500: printf("  Error while calling a Windows function.\n"); break;
+			case -1002:      printf("  Too many open channels.\n"); break;
+			case -1003:      printf("  Wrong DLL or driver version.\n"); break;
+			case -1004:      printf("  Error while loading the firmware. (This may be a DPRAM access error)\n"); break;
+			case -1:         printf("  Function not successful.\n"); break;
+		}
+
+		printf("\tError: CAN open\n");
+		return ret;
+	}
+
+	///////////////////////////////////////////////////////////////////////
+	// Reset Chip
+//	ret = CANL2_reset_chip(hCAN[ch-1]);
+//	if (ret)
+//	{
+//		printf("\tError: CAN reset chip\n");
+//		INIL2_close_channel(hCAN[ch-1]);
+//		hCAN[ch-1] = 0;
+//		return ret;
+//	}
+
+	///////////////////////////////////////////////////////////////////////
+	// Init Chip
+//	ret = CANL2_initialize_chip(hCAN[ch-1], 1, 1, 4, 3, 0);
+//	if (ret)
+//	{
+//		printf("\tError: CAN set baud rate\n");
+//		INIL2_close_channel(hCAN[ch-1]);
+//		hCAN[ch-1] = 0;
+//		return ret;
+//	}
+	
+	///////////////////////////////////////////////////////////////////////
+	// Set Acceptance
+//	ret = CANL2_set_acceptance(hCAN[ch-1], m_id, 0x7ff, m_id, 0x1fffffff);
+//	if (ret)
+//	{
+//		printf("\tError: CAN set acceptance\n");
+//		INIL2_close_channel(hCAN[ch-1]);
+//		hCAN[ch-1] = 0;
+//		return ret;
+//	}
+	
+	///////////////////////////////////////////////////////////////////////
+	// Set Out Control
+//	ret = CANL2_set_output_control(hCAN[ch-1], -1);
+	
+	///////////////////////////////////////////////////////////////////////
+	// Enable FIFO
+	L2CONFIG L2Config;
+	//L2Config.fBaudrate = 1000.0;
+	L2Config.bEnableAck = false;
+	L2Config.bEnableErrorframe = false;
+	L2Config.s32AccCodeStd = GET_FROM_SCIM;
+	L2Config.s32AccMaskStd = GET_FROM_SCIM;
+	L2Config.s32AccCodeXtd = GET_FROM_SCIM;
+	L2Config.s32AccMaskXtd = GET_FROM_SCIM;
+	L2Config.s32OutputCtrl = GET_FROM_SCIM;
+	L2Config.s32Prescaler = GET_FROM_SCIM;
+	L2Config.s32Sam = GET_FROM_SCIM;
+	L2Config.s32Sjw = GET_FROM_SCIM;
+	L2Config.s32Tseg1 = GET_FROM_SCIM;
+	L2Config.s32Tseg2 = GET_FROM_SCIM;
+	//L2Config.hEvent = (void*)-1;
 	ret = CANL2_initialize_fifo_mode(hCAN[ch-1], &L2Config);
 	if (ret)
 	{

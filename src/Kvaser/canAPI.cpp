@@ -58,6 +58,11 @@ int command_can_open(int ch)
 	return 0;
 }
 
+int command_can_open_ex(int ch, int type, int index)
+{
+	return command_can_open(ch);
+}
+
 int command_can_reset(int ch)
 {
 	assert(ch >= 0 && ch < CH_COUNT);

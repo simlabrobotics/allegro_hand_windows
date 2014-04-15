@@ -34,71 +34,55 @@ double q[MAX_DOF];
 double tau_des[MAX_DOF];
 double cur_des[MAX_DOF];
 
-
-
 // USER HAND CONFIGURATION
 const bool	RIGHT_HAND = true;
 const int	HAND_VERSION = 3;
 
+const double tau_cov_const_v2 = 800.0; // 800.0 for SAH020xxxxx
+const double tau_cov_const_v3 = 1200.0; // 1200.0 for SAH030xxxxx
 
-// v3.x
+//const int enc_offset[MAX_DOF] = { // SAH020CR020
+//	-611, -66016, 1161, 1377,
+//	-342, -66033, -481, 303,
+//	30, -65620, 446, 387,
+//	-3942, -626, -65508, -66768
+//};
+//const int enc_offset[MAX_DOF] = { // SAH020BR013
+//	-391,	-64387,	-129,	 532,
+//	 178,	-66030,	-142,	 547,
+//	-234,	-64916,	 7317,	 1923,
+//	 1124,	-1319,	-65983, -65566
+//};
+//const double enc_dir[MAX_DOF] = { // SAH020xxxxx
+//	1.0, -1.0, 1.0, 1.0,
+//	1.0, -1.0, 1.0, 1.0,
+//	1.0, -1.0, 1.0, 1.0,
+//	1.0, 1.0, -1.0, -1.0
+//};
+//const double motor_dir[MAX_DOF] = { // SAH020xxxxx
+//	1.0, 1.0, 1.0, 1.0,
+//	1.0, -1.0, -1.0, 1.0,
+//	-1.0, 1.0, 1.0, 1.0,
+//	1.0, 1.0, 1.0, 1.0
+//};
 const int enc_offset[MAX_DOF] = { // SAH030AR023
 	-1700, -568, -3064, -36,
 	-2015, -1687, 188, -772,
 	-3763, 782, -3402, 368,
 	1059, -2547, -692, 2411
 };
-
-const double enc_dir[MAX_DOF] = { // v3.0
+const double enc_dir[MAX_DOF] = { // SAH030xxxxx
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0
 };
-const double motor_dir[MAX_DOF] = { // v3.0
+const double motor_dir[MAX_DOF] = { // SAH030xxxxx
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0
 };
-
-
-// v2.x
-/*
-const int enc_offset[MAX_DOF] = { // SAH030AR022
-	1485, -13, 211, 234,
-	0, 282, 2174, -2291,
-	1698, 1782, -2351, 793,
-	466, 2397, 2594, 270
-};
-*/
-
-
-/*
-const int enc_offset[MAX_DOF] = { // SAH020BR013
-	-391,	-64387,	-129,	 532,
-	 178,	-66030,	-142,	 547,
-	-234,	-64916,	 7317,	 1923,
-	 1124,	-1319,	-65983, -65566
-};
-
-
-const double enc_dir[MAX_DOF] = { // v2.0
-	1.0, -1.0,  1.0,  1.0,
-	1.0, -1.0,  1.0,  1.0,
-	1.0, -1.0,  1.0,  1.0,
-	1.0,  1.0, -1.0, -1.0
-};
-const double motor_dir[MAX_DOF] = { // v2.0
-	 1.0,  1.0,  1.0, 1.0,
-	 1.0, -1.0, -1.0, 1.0,
-	-1.0,  1.0,  1.0, 1.0,
-	 1.0,  1.0,  1.0, 1.0
-};
-*/
-
-
-
 
 ///////////////////////////////////////
 // functions
@@ -113,11 +97,6 @@ void ComputeTorque();
 
 void ComputeTorque()
 {
-	/*memset(tau_des, 0, sizeof(tau_des));
-	tau_des[0] = 200.0 / 800.0 * motor_dir[0];
-	return;*/
-
-
 	if (!pBHand) return;
 
 	pBHand->SetJointPosition(q); // tell BHand library the current joint positions
@@ -137,7 +116,7 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 
 	while (ioThreadRun)
 	{
-		while (0 == get_message(CAN_Ch, &id_cmd, &id_src, &id_des, &len, data, FALSE))
+		while (0 == get_message(CAN_Ch, &id_cmd, &id_src, &id_des, &len, data, TRUE))
 		{
 			switch (id_cmd)
 			{
@@ -157,8 +136,6 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 						// convert encoder count to joint angle
 						for (i=0; i<MAX_DOF; i++)
 							q[i] = (double)(vars.enc_actual[i]*enc_dir[i]-32768-enc_offset[i])*(333.3/65536.0)*(3.141592/180.0);
-
-						//printf("%f\n",q[5]);
 
 						// compute joint torque
 						ComputeTorque();
@@ -180,37 +157,20 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 							{
 								case 1:
 								case 2:
-									vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*800.0);
-									vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*800.0);
-									vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*800.0);
-									vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*800.0);
+									vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*tau_cov_const_v2);
+									vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*tau_cov_const_v2);
+									vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*tau_cov_const_v2);
+									vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*tau_cov_const_v2);
 									break;
 
 								case 3:
 								default:
-									vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*1200.0);
-									vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*1200.0);
-									vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*1200.0);
-									vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*1200.0);	
+									vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*tau_cov_const_v3);
+									vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*tau_cov_const_v3);
+									vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*tau_cov_const_v3);
+									vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*tau_cov_const_v3);	
 									break;
 							}
-
-							// 2.0
-							/*
-							vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*800.0);
-							vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*800.0);
-							vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*800.0);
-							vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*800.0);
-							*/
-							
-
-							// 3.0
-							/*
-							vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*1200.0);
-							vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*1200.0);
-							vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*1200.0);
-							vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*1200.0);							
-							*/
 
 							write_current(CAN_Ch, i, &vars.pwm_demand[4*i]);
 							for(int k=0; k<100000; k++);
@@ -339,7 +299,13 @@ bool OpenCAN()
 {
 	int ret;
 	
+#if defined(PEAKCAN)
 	CAN_Ch = GetCANChannelIndex(_T("USBBUS1"));
+#elif defined(IXXATCAN)
+	CAN_Ch = 1;
+#else
+	CAN_Ch = 1;
+#endif
 
 	printf(">CAN(%d): open\n", CAN_Ch);
 	ret = command_can_open(CAN_Ch);
@@ -492,12 +458,10 @@ int GetCANChannelIndex(const TCHAR* cname)
 
 bool CreateBHandAlgorithm()
 {
-	if ( RIGHT_HAND ) {
+	if (RIGHT_HAND)
 		pBHand = bhCreateRightHand();
-	}
-	else {
+	else
 		pBHand = bhCreateLeftHand();
-	}
 
 	if (!pBHand) return false;
 	pBHand->SetTimeInterval(delT);

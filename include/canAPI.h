@@ -38,6 +38,7 @@ CANAPI_BEGIN
 /* CAN device API */
 /******************/
 int command_can_open(int ch);
+int command_can_open_ex(int ch, int type, int index);
 int command_can_reset(int ch);
 int command_can_close(int ch);
 
