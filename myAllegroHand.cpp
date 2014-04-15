@@ -116,7 +116,7 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 
 	while (ioThreadRun)
 	{
-		while (0 == get_message(CAN_Ch, &id_cmd, &id_src, &id_des, &len, data, TRUE))
+		while (0 == get_message(CAN_Ch, &id_cmd, &id_src, &id_des, &len, data, FALSE))
 		{
 			switch (id_cmd)
 			{
@@ -509,7 +509,9 @@ void DestroyBHandAlgorithm()
 {
 	if (pBHand)
 	{
+#ifndef _DEBUG
 		delete pBHand;
+#endif
 		pBHand = NULL;
 	}
 }

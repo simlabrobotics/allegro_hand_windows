@@ -219,7 +219,12 @@ int get_message(int ch, char* cmd, char* src, char* des, int* len, unsigned char
 	HRESULT hResult;
 	CANMSG  sCanMsg;
 
-	hResult = canChannelReadMessage(hCanChn[ch-1], (blocking ? INFINITE : 0), &sCanMsg);
+	//hResult = canChannelReadMessage(hCanChn[ch-1], (blocking ? INFINITE : 0), &sCanMsg);
+	if (blocking)
+		hResult = canChannelReadMessage(hCanChn[ch-1], INFINITE, &sCanMsg);
+	else
+		hResult = canChannelPeekMessage(hCanChn[ch-1], &sCanMsg);
+		
 	
 	if (hResult == VCI_OK)
 	{
@@ -281,8 +286,13 @@ int get_message(int ch, char* cmd, char* src, char* des, int* len, unsigned char
 			}
 		}
     }
-
-	DisplayError(hResult);
+	else
+	{
+		 if (VCI_E_RXQUEUE_EMPTY != hResult &&
+			 VCI_E_TIMEOUT != hResult)
+			 DisplayError(hResult);
+	}
+	
 	return hResult;
 }
 
