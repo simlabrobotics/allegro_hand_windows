@@ -11,7 +11,7 @@
 #include "rPanelManipulatorCmdUtil.h"
 #include "BHand/BHand.h"
 
-///////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // for CAN communication
 const double delT = 0.003;
 int CAN_Ch = 0;
@@ -22,15 +22,16 @@ int sendNum = 0;
 double statTime = -1.0;
 AllegroHand_DeviceMemory_t vars;
 
-///////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // for rPanelManipulator
 rPanelManipulatorData_t* pSHM = NULL;
 double curTime = 0.0;
 
-///////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // for BHand library
 BHand* pBHand = NULL;
 double q[MAX_DOF];
+double q_des[MAX_DOF];
 double tau_des[MAX_DOF];
 double cur_des[MAX_DOF];
 
@@ -84,8 +85,13 @@ const double motor_dir[MAX_DOF] = { // SAH030xxxxx
 	1.0, 1.0, 1.0, 1.0
 };
 
-///////////////////////////////////////
-// functions
+/////////////////////////////////////////////////////////////////////////////////////////
+// sample motions
+#include "RockScissorsPaper.h"
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// functions declarations
 void PrintInstruction();
 void MainLoop();
 bool OpenCAN();
@@ -95,15 +101,9 @@ bool CreateBHandAlgorithm();
 void DestroyBHandAlgorithm();
 void ComputeTorque();
 
-void ComputeTorque()
-{
-	if (!pBHand) return;
 
-	pBHand->SetJointPosition(q); // tell BHand library the current joint positions
-	pBHand->UpdateControl(0);
-	pBHand->GetJointTorque(tau_des);
-}
-
+/////////////////////////////////////////////////////////////////////////////////////////
+// CAN communication thread
 static unsigned int __stdcall ioThreadProc(void* inst)
 {
 	char id_des;
@@ -189,6 +189,19 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 	return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Compute control torque for each joint using BHand library
+void ComputeTorque()
+{
+	if (!pBHand) return;
+	pBHand->SetJointPosition(q); // tell BHand library the current joint positions
+	pBHand->SetJointDesiredPosition(q_des);
+	pBHand->UpdateControl(0);
+	pBHand->GetJointTorque(tau_des);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Application main-loop. It handles the commands from rPanelManipulator and keyboard events
 void MainLoop()
 {
 	bool bRun = true;
@@ -290,11 +303,25 @@ void MainLoop()
 			case 'o':
 				if (pBHand) pBHand->SetMotionType(eMotionType_NONE);
 				break;
+
+			case '1':
+				MotionRock();
+				break;
+
+			case '2':
+				MotionScissors();
+				break;
+
+			case '3':
+				MotionPaper();
+				break;
 			}
 		}
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Open a CAN data channel
 bool OpenCAN()
 {
 	int ret;
@@ -345,6 +372,8 @@ bool OpenCAN()
 	return true;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Close CAN data channel
 void CloseCAN()
 {
 	int ret;
@@ -370,6 +399,8 @@ void CloseCAN()
 	if(ret < 0) printf("ERROR command_can_close !!! \n");
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Print program information and keyboard instructions
 void PrintInstruction()
 {
 	printf("--------------------------------------------------\n");
@@ -392,6 +423,8 @@ void PrintInstruction()
 	printf("--------------------------------------------------\n\n");
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Get channel index for Peak CAN interface
 int GetCANChannelIndex(const TCHAR* cname)
 {
 	if (!cname) return 0;
@@ -456,6 +489,8 @@ int GetCANChannelIndex(const TCHAR* cname)
 		return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Load and create grasping algorithm
 bool CreateBHandAlgorithm()
 {
 	if (RIGHT_HAND)
@@ -468,6 +503,8 @@ bool CreateBHandAlgorithm()
 	return true;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Destroy grasping algorithm
 void DestroyBHandAlgorithm()
 {
 	if (pBHand)
@@ -477,12 +514,15 @@ void DestroyBHandAlgorithm()
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Program main
 int _tmain(int argc, _TCHAR* argv[])
 {
 	PrintInstruction();
 
 	memset(&vars, 0, sizeof(vars));
 	memset(q, 0, sizeof(q));
+	memset(q_des, 0, sizeof(q_des));
 	memset(tau_des, 0, sizeof(tau_des));
 	memset(cur_des, 0, sizeof(cur_des));
 	curTime = 0.0;

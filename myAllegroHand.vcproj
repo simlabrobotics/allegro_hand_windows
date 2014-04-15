@@ -332,6 +332,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RockScissorsPaper.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -503,6 +507,10 @@
 			</File>
 			<File
 				RelativePath=".\include\rDeviceAllegroHandCANDef.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RockScissorsPaper.h"
 				>
 			</File>
 			<File
