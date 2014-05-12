@@ -36,24 +36,12 @@ double tau_des[MAX_DOF];
 double cur_des[MAX_DOF];
 
 // USER HAND CONFIGURATION
-const bool	RIGHT_HAND = true;
+const bool	RIGHT_HAND = false;
 const int	HAND_VERSION = 3;
 
 const double tau_cov_const_v2 = 800.0; // 800.0 for SAH020xxxxx
 const double tau_cov_const_v3 = 1200.0; // 1200.0 for SAH030xxxxx
 
-//const int enc_offset[MAX_DOF] = { // SAH020CR020
-//	-611, -66016, 1161, 1377,
-//	-342, -66033, -481, 303,
-//	30, -65620, 446, 387,
-//	-3942, -626, -65508, -66768
-//};
-//const int enc_offset[MAX_DOF] = { // SAH020BR013
-//	-391,	-64387,	-129,	 532,
-//	 178,	-66030,	-142,	 547,
-//	-234,	-64916,	 7317,	 1923,
-//	 1124,	-1319,	-65983, -65566
-//};
 //const double enc_dir[MAX_DOF] = { // SAH020xxxxx
 //	1.0, -1.0, 1.0, 1.0,
 //	1.0, -1.0, 1.0, 1.0,
@@ -66,12 +54,19 @@ const double tau_cov_const_v3 = 1200.0; // 1200.0 for SAH030xxxxx
 //	-1.0, 1.0, 1.0, 1.0,
 //	1.0, 1.0, 1.0, 1.0
 //};
-const int enc_offset[MAX_DOF] = { // SAH030AR023
-	-1700, -568, -3064, -36,
-	-2015, -1687, 188, -772,
-	-3763, 782, -3402, 368,
-	1059, -2547, -692, 2411
-};
+//const int enc_offset[MAX_DOF] = { // SAH020CR020
+//	-611, -66016, 1161, 1377,
+//	-342, -66033, -481, 303,
+//	30, -65620, 446, 387,
+//	-3942, -626, -65508, -66768
+//};
+//const int enc_offset[MAX_DOF] = { // SAH020BR013
+//	-391,	-64387,	-129,	 532,
+//	 178,	-66030,	-142,	 547,
+//	-234,	-64916,	 7317,	 1923,
+//	 1124,	-1319,	-65983, -65566
+//};
+
 const double enc_dir[MAX_DOF] = { // SAH030xxxxx
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0,
@@ -84,6 +79,19 @@ const double motor_dir[MAX_DOF] = { // SAH030xxxxx
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0
 };
+//const int enc_offset[MAX_DOF] = { // SAH030AR023
+//	-1700, -568, -3064, -36,
+//	-2015, -1687, 188, -772,
+//	-3763, 782, -3402, 368,
+//	1059, -2547, -692, 2411
+//};
+const int enc_offset[MAX_DOF] = { // SAH030AL026
+	-647, 1776, -198, -2132,
+	3335, 350, -3093, 468,
+	-14, 1499, -2176, -960,
+	-196, -367, 4, -1380
+};
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // sample motions
@@ -120,6 +128,46 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 		{
 			switch (id_cmd)
 			{
+			case ID_CMD_QUERY_ID:
+				{
+					printf(">CAN(%d): AllegroHand revision info: 0x%02x%02x\n", CAN_Ch, data[3], data[2]);
+					printf("                      firmware info: 0x%02x%02x\n", CAN_Ch, data[5], data[4]);
+					printf("                      hardware type: 0x%02x\n", CAN_Ch, data[7]);
+				}
+				break;
+
+			case ID_CMD_AHRS_POSE:
+				{
+					printf(">CAN(%d): AHRS Roll : 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
+					printf("               Pitch: 0x%02x%02x\n", CAN_Ch, data[2], data[3]);
+					printf("               Yaw  : 0x%02x%02x\n", CAN_Ch, data[4], data[5]);
+				}
+				break;
+
+			case ID_CMD_AHRS_ACC:
+				{
+					printf(">CAN(%d): AHRS Acc(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
+					printf("               Acc(y): 0x%02x%02x\n", CAN_Ch, data[2], data[3]);
+					printf("               Acc(z): 0x%02x%02x\n", CAN_Ch, data[4], data[5]);
+				}
+				break;
+
+			case ID_CMD_AHRS_GYRO:
+				{
+					printf(">CAN(%d): AHRS Angular Vel(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
+					printf("               Angular Vel(y): 0x%02x%02x\n", CAN_Ch, data[2], data[3]);
+					printf("               Angular Vel(z): 0x%02x%02x\n", CAN_Ch, data[4], data[5]);
+				}
+				break;
+
+			case ID_CMD_AHRS_MAG:
+				{
+					printf(">CAN(%d): AHRS Magnetic Field(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
+					printf("               Magnetic Field(y): 0x%02x%02x\n", CAN_Ch, data[2], data[3]);
+					printf("               Magnetic Field(z): 0x%02x%02x\n", CAN_Ch, data[4], data[5]);
+				}
+				break;
+
 			case ID_CMD_QUERY_CONTROL_DATA:
 				{
 					if (id_src >= ID_DEVICE_SUB_01 && id_src <= ID_DEVICE_SUB_04)
@@ -349,6 +397,15 @@ bool OpenCAN()
 	ioThreadRun = true;
 	ioThread = _beginthreadex(NULL, 0, ioThreadProc, NULL, 0, NULL);
 	printf(">CAN: starts listening CAN frames\n");
+
+	printf(">CAN: query system id\n");
+	ret = command_can_query_id(CAN_Ch);
+	if(ret < 0)
+	{
+		printf("ERROR command_can_query_id !!! \n");
+		command_can_close(CAN_Ch);
+		return false;
+	}
 
 	printf(">CAN: system init\n");
 	ret = command_can_sys_init(CAN_Ch, 3/*msec*/);

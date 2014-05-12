@@ -65,6 +65,12 @@ typedef struct{
 #define ID_CMD_SET_POSITION_4			0x0d
 #define ID_CMD_QUERY_STATE_DATA			0x0e
 #define ID_CMD_QUERY_CONTROL_DATA		0x0f
+#define ID_CMD_QUERY_ID					0x10
+#define ID_CMD_AHRS_SET					0x20
+#define ID_CMD_AHRS_POSE				0x21
+#define ID_CMD_AHRS_ACC					0x22
+#define ID_CMD_AHRS_GYRO				0x23
+#define ID_CMD_AHRS_MAG					0x24
 
 ////////////////////////////////////////////////
 //  Define Control Channel in Device
@@ -97,6 +103,21 @@ typedef struct{
 
 #define ON	1
 #define OFF 0
+
+////////////////////////////////////////////////
+//   Define AHRS Data Rate&Mask
+
+#define AHRS_RATE_1Hz	0x00 
+#define AHRS_RATE_10Hz	0x01 
+#define AHRS_RATE_20Hz	0x02 
+#define AHRS_RATE_50Hz	0x03 
+#define AHRS_RATE_100Hz	0x04 
+
+#define AHRS_MASK_POSE	0x01
+#define AHRS_MASK_ACC	0x02
+#define AHRS_MASK_GYRO	0x04
+#define AHRS_MASK_MAG	0x08
+
 ////////////////////////////////////////////////
 
 

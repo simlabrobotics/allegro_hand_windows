@@ -93,6 +93,20 @@ int command_can_close(int ch)
 	return 0;
 }
 
+int command_can_query_id(int ch)
+{
+	assert(ch >= 0 && ch < CH_COUNT);
+
+	long Txid;
+	unsigned char data[8];
+	canStatus ret;
+
+	Txid = ((unsigned long)ID_CMD_QUERY_ID<<6) | ((unsigned long)ID_COMMON <<3) | ((unsigned long)ID_DEVICE_MAIN);
+	ret = canWrite(hCAN[ch], Txid, data, 0, STD);
+
+	return 0;
+}
+
 int command_can_sys_init(int ch, int period_msec)
 {
 	assert(ch >= 0 && ch < CH_COUNT);
@@ -147,6 +161,22 @@ int command_can_stop(int ch)
 
 	Txid = ((unsigned long)ID_CMD_SET_SYSTEM_OFF<<6) | ((unsigned long)ID_COMMON <<3) | ((unsigned long)ID_DEVICE_MAIN);
 	ret = canWrite(hCAN[ch], Txid, data, 0, STD);
+
+	return 0;
+}
+
+int command_can_AHRS_set(int ch, unsigned char rate, unsigned char mask)
+{
+	assert(ch >= 0 && ch < CH_COUNT);
+
+	long Txid;
+	unsigned char data[8];
+	canStatus ret;
+
+	Txid = ((unsigned long)ID_CMD_AHRS_SET<<6) | ((unsigned long)ID_COMMON <<3) | ((unsigned long)ID_DEVICE_MAIN);
+	data[0] = (unsigned char)rate;
+	data[1] = (unsigned char)mask;
+	ret = canWrite(hCAN[ch], Txid, data, 2, STD);
 
 	return 0;
 }

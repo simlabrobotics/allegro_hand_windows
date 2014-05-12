@@ -5,20 +5,44 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myAllegroHand", "myAllegroH
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		ESD Debug|Win32 = ESD Debug|Win32
+		ESD Release|Win32 = ESD Release|Win32
 		IXXAT Debug|Win32 = IXXAT Debug|Win32
 		IXXAT Release|Win32 = IXXAT Release|Win32
+		Kvaser Debug|Win32 = Kvaser Debug|Win32
+		Kvaser Release|Win32 = Kvaser Release|Win32
+		NI Debug|Win32 = NI Debug|Win32
+		NI Release|Win32 = NI Release|Win32
 		Peak Debug|Win32 = Peak Debug|Win32
 		Peak Release|Win32 = Peak Release|Win32
+		Softing Debug|Win32 = Softing Debug|Win32
+		Softing Release|Win32 = Softing Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EA8B366-194E-411B-A872-5DE961E92066}.ESD Debug|Win32.ActiveCfg = ESD Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.ESD Debug|Win32.Build.0 = ESD Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.ESD Release|Win32.ActiveCfg = ESD Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.ESD Release|Win32.Build.0 = ESD Release|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.IXXAT Debug|Win32.ActiveCfg = IXXAT Debug|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.IXXAT Debug|Win32.Build.0 = IXXAT Debug|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.IXXAT Release|Win32.ActiveCfg = IXXAT Release|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.IXXAT Release|Win32.Build.0 = IXXAT Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Kvaser Debug|Win32.ActiveCfg = Kvaser Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Kvaser Debug|Win32.Build.0 = Kvaser Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Kvaser Release|Win32.ActiveCfg = Kvaser Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Kvaser Release|Win32.Build.0 = Kvaser Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.NI Debug|Win32.ActiveCfg = NI Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.NI Debug|Win32.Build.0 = NI Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.NI Release|Win32.ActiveCfg = NI Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.NI Release|Win32.Build.0 = NI Release|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.Peak Debug|Win32.ActiveCfg = Peak Debug|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.Peak Debug|Win32.Build.0 = Peak Debug|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.Peak Release|Win32.ActiveCfg = Peak Release|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.Peak Release|Win32.Build.0 = Peak Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Softing Debug|Win32.ActiveCfg = Softing Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Softing Debug|Win32.Build.0 = Softing Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Softing Release|Win32.ActiveCfg = Softing Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.Softing Release|Win32.Build.0 = Softing Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

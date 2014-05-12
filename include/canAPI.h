@@ -42,9 +42,12 @@ int command_can_open_ex(int ch, int type, int index);
 int command_can_reset(int ch);
 int command_can_close(int ch);
 
+int command_can_query_id(int ch); // since v3.0
 int command_can_sys_init(int ch, int period_msec);
 int command_can_start(int ch);
 int command_can_stop(int ch);
+
+int command_can_AHRS_set(int ch, unsigned char rate, unsigned char mask); // since v3.0
 
 int write_current(int ch, int findex, short* pwm);
 
