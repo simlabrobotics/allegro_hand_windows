@@ -66,11 +66,11 @@ typedef struct{
 #define ID_CMD_QUERY_STATE_DATA			0x0e
 #define ID_CMD_QUERY_CONTROL_DATA		0x0f
 #define ID_CMD_QUERY_ID					0x10
-#define ID_CMD_AHRS_SET					0x20
-#define ID_CMD_AHRS_POSE				0x21
-#define ID_CMD_AHRS_ACC					0x22
-#define ID_CMD_AHRS_GYRO				0x23
-#define ID_CMD_AHRS_MAG					0x24
+#define ID_CMD_AHRS_SET					0x11
+#define ID_CMD_AHRS_POSE				0x12
+#define ID_CMD_AHRS_ACC					0x13
+#define ID_CMD_AHRS_GYRO				0x14
+#define ID_CMD_AHRS_MAG					0x15
 
 ////////////////////////////////////////////////
 //  Define Control Channel in Device

@@ -108,18 +108,18 @@ int initCAN(int bus){
 		return Status;
 	}
 
-	Status = CAN_FilterMessages(
-		canDev[bus],
-		((unsigned long)(ID_CMD_QUERY_CONTROL_DATA) <<6) | ((unsigned long)ID_DEVICE_MAIN <<3) | ((unsigned long)ID_DEVICE_SUB_01),
-		((unsigned long)(ID_CMD_QUERY_CONTROL_DATA) <<6) | ((unsigned long)ID_DEVICE_MAIN <<3) | ((unsigned long)ID_DEVICE_SUB_04),
-		PCAN_MESSAGE_STANDARD);
-	if (Status != PCAN_ERROR_OK)
-	{
-		CAN_GetErrorText(Status, 0, strMsg);
-		printf("initCAN(): CAN_FilterMessages() failed with error %ld\n", Status);
-		printf("%s\n", strMsg);
-		//return Status;
-	}
+	//Status = CAN_FilterMessages(
+	//	canDev[bus],
+	//	((unsigned long)(ID_CMD_QUERY_CONTROL_DATA) <<6) | ((unsigned long)ID_DEVICE_MAIN <<3) | ((unsigned long)ID_DEVICE_SUB_01),
+	//	((unsigned long)(ID_CMD_QUERY_CONTROL_DATA) <<6) | ((unsigned long)ID_DEVICE_MAIN <<3) | ((unsigned long)ID_DEVICE_SUB_04),
+	//	PCAN_MESSAGE_STANDARD);
+	//if (Status != PCAN_ERROR_OK)
+	//{
+	//	CAN_GetErrorText(Status, 0, strMsg);
+	//	printf("initCAN(): CAN_FilterMessages() failed with error %ld\n", Status);
+	//	printf("%s\n", strMsg);
+	//	//return Status;
+	//}
 
 	Status = CAN_Reset(canDev[bus]);
 	if (Status != PCAN_ERROR_OK)

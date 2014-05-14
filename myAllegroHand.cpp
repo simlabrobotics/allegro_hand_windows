@@ -131,40 +131,40 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 			case ID_CMD_QUERY_ID:
 				{
 					printf(">CAN(%d): AllegroHand revision info: 0x%02x%02x\n", CAN_Ch, data[3], data[2]);
-					printf("                      firmware info: 0x%02x%02x\n", CAN_Ch, data[5], data[4]);
-					printf("                      hardware type: 0x%02x\n", CAN_Ch, data[7]);
+					printf("                      firmware info: 0x%02x%02x\n", data[5], data[4]);
+					printf("                      hardware type: 0x%02x\n", data[7]);
 				}
 				break;
 
 			case ID_CMD_AHRS_POSE:
 				{
 					printf(">CAN(%d): AHRS Roll : 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
-					printf("               Pitch: 0x%02x%02x\n", CAN_Ch, data[2], data[3]);
-					printf("               Yaw  : 0x%02x%02x\n", CAN_Ch, data[4], data[5]);
+					printf("               Pitch: 0x%02x%02x\n", data[2], data[3]);
+					printf("               Yaw  : 0x%02x%02x\n", data[4], data[5]);
 				}
 				break;
 
 			case ID_CMD_AHRS_ACC:
 				{
 					printf(">CAN(%d): AHRS Acc(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
-					printf("               Acc(y): 0x%02x%02x\n", CAN_Ch, data[2], data[3]);
-					printf("               Acc(z): 0x%02x%02x\n", CAN_Ch, data[4], data[5]);
+					printf("               Acc(y): 0x%02x%02x\n", data[2], data[3]);
+					printf("               Acc(z): 0x%02x%02x\n", data[4], data[5]);
 				}
 				break;
 
 			case ID_CMD_AHRS_GYRO:
 				{
 					printf(">CAN(%d): AHRS Angular Vel(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
-					printf("               Angular Vel(y): 0x%02x%02x\n", CAN_Ch, data[2], data[3]);
-					printf("               Angular Vel(z): 0x%02x%02x\n", CAN_Ch, data[4], data[5]);
+					printf("               Angular Vel(y): 0x%02x%02x\n", data[2], data[3]);
+					printf("               Angular Vel(z): 0x%02x%02x\n", data[4], data[5]);
 				}
 				break;
 
 			case ID_CMD_AHRS_MAG:
 				{
 					printf(">CAN(%d): AHRS Magnetic Field(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
-					printf("               Magnetic Field(y): 0x%02x%02x\n", CAN_Ch, data[2], data[3]);
-					printf("               Magnetic Field(z): 0x%02x%02x\n", CAN_Ch, data[4], data[5]);
+					printf("               Magnetic Field(y): 0x%02x%02x\n", data[2], data[3]);
+					printf("               Magnetic Field(z): 0x%02x%02x\n", data[4], data[5]);
 				}
 				break;
 
@@ -397,12 +397,21 @@ bool OpenCAN()
 	ioThreadRun = true;
 	ioThread = _beginthreadex(NULL, 0, ioThreadProc, NULL, 0, NULL);
 	printf(">CAN: starts listening CAN frames\n");
-
+	
 	printf(">CAN: query system id\n");
 	ret = command_can_query_id(CAN_Ch);
 	if(ret < 0)
 	{
 		printf("ERROR command_can_query_id !!! \n");
+		command_can_close(CAN_Ch);
+		return false;
+	}
+
+	printf(">CAN: AHRS set\n");
+	ret = command_can_AHRS_set(CAN_Ch, AHRS_RATE_100Hz, AHRS_MASK_POSE | AHRS_MASK_ACC);
+	if(ret < 0)
+	{
+		printf("ERROR command_can_AHRS_set !!! \n");
 		command_can_close(CAN_Ch);
 		return false;
 	}
