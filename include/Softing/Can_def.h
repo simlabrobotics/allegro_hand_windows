@@ -1,10 +1,10 @@
 /***************************************************************************/
 /*                                                                         */
-/*   Softing GmbH          Richard-Reitzner-Allee 6       85540 Haar       */
+/*   Softing Automation GmbH   Richard-Reitzner-Allee 6   85540 Haar       */
 /*                                                                         */
 /***************************************************************************/
 /*                                                                         */
-/*   Copyright (C) by Softing GmbH, 1997,1998,1999   All rights reserved.  */
+/*   Copyright (C) Softing Industrial Automation GmbH  1997-2012           */
 /*                                                                         */
 /***************************************************************************/
 /*                                                                         */

@@ -1,10 +1,10 @@
 /****************************************************************************/
 /*                                                                          */
-/*   Softing AG            Richard-Reitzner-Allee 6       85540 Haar        */
+/*   Softing Automation GmbH   Richard-Reitzner-Allee 6   85540 Haar        */
 /*                                                                          */
 /****************************************************************************/
 /*                                                                          */
-/*   Copyright (C) by Softing AG, 1997 - 2005   All rights reserved.        */
+/*  Copyright (c) Softing Industrial Automation GmbH, All rights reserved.  */
 /*                                                                          */
 /****************************************************************************/
 /*                                                                          */
@@ -13,14 +13,15 @@
 /****************************************************************************/
 /*                                                                          */
 /* MODULE_DESCRIPTION  CANL2.H                                              */
-/* VERSION             4                                                    */
-/* DATE                1.12.98                                              */
+/* VERSION             5                                                    */
+/* DATE                01.04.2012                                           */
 /*                     include file for CAN Layer 2 Library                 */
 /*                     function prototypes and return codes                 */
 /*                                                                          */
 /****************************************************************************/
 #ifndef _CANL2_H
 #define _CANL2_H 
+
              
 #if defined (WIN16) || defined (DOS)
 #ifndef noUnicode
@@ -37,25 +38,18 @@
 #endif
 #endif
 
-#define CAN_HANDLE unsigned long
+//#define CAN_HANDLE unsigned long
+typedef unsigned long CAN_HANDLE;
 
-
-
-#define  CANL2_SOCKET_AUTO   0xFFFF    /* Socket automatically searched     */
-#define  CANL2_NO_IRQ        0x0       /* no interrupt requested            */
-#define  CANL2_IRQ_AUTO      0xFFFF    /* interrupt automatically assigned  */
-#define  CANL2_BASE_AUTO     0x0L      /* DPR-Base automatically assigned   */
-#define  CANL2_SIZE_AUTO     0x0L      /* DPR-Size automatically assigned   */
-#define  CANL2_AI_AUTO       0x0       /* chip does no matter               */
-#define  CANL2_AI_DB8        0x01      /* chip is Databook                  */
-#define  CANL2_READ_INIFILE  0xFFFE    /* DOS CAN-AC2-104: reads INI-File   */
 
 /* ---- CAN chip-types -----------------------------------------------------*/
 #define NEC005_CHIP            5
+#define TWINCAN_CHIP         161
+#define MULTICAN_CHIP        164
 #define SJA1000_CHIP        1000
 
 
-/* ---- Softing CAN Baugruppentypen ----------------------------------------*/
+/* ---- Softing CAN Devices         ----------------------------------------*/
 
 #define    D_CANCARD2        0x00000005L
 #define    D_EDICCARDC       0x00000102L
@@ -67,21 +61,21 @@
 #define    D_CANECO104       0x0000000CL
 #define    D_CANPROXPCIE     0x0000000DL
 #define    D_CANPROX104      0x0000000EL
+#define    D_CANPROUSB       0x0000000FL
 #define    D_CANFANUPC8      0x00008000L
 #define    D_FG100CAN        0x10000000L
 
 
+// get the value from Softing CAN Interface Manager
 #define GET_FROM_SCIM -1
 
 
 
-#ifdef WIN32
-#pragma pack(push,1)                    /* pack alignment must be one        */
-#else
-#pragma pack(1)                        /* pack alignment must be one        */
-#endif
+#pragma pack(push, 1)                        /* pack alignment must be one        */
 
 #ifndef CANL2_EXPORTS
+//  description of on CAN channel
+// used for the API Function call CANL2_get_all_CAN_channels
 #define MAXLENCHNAME 80
 typedef struct
 {
@@ -90,7 +84,7 @@ typedef struct
   ULONG   u32PhysCh; // physical channel number (1 or 2)
   ULONG   u32FwId; // id of the loaded firmware
   BOOLEAN bIsOpen; // TRUE if opened by a process
-  TCHAR ChannelName[MAXLENCHNAME];        
+  char ChannelName[MAXLENCHNAME];        
 
 
 } CHDSNAPSHOT, *PCHDSNAPSHOT;
@@ -98,46 +92,50 @@ typedef struct
 #endif 
 
 
+// this structure is used for CANL2_read_ac()
 
+typedef struct  {
+                  unsigned long  Ident;                       /* CAN Identifier*/
+                  int            DataLength;                  /*number of data bytes in the CAN message*/
+                  int            RecOverrun_flag;             /*if this is true in object buffer it signals an receive overrun, used only in object buffer*/
+                  int            RCV_fifo_lost_msg;           /*number of messages lost, used only in FIFO Mode*/
+                  unsigned char  RCV_data[8];                 /*CAN data bytes*/
+                  int            AckOverrun_flag;             /*if this is true in object buffer it signals an ACK overrun, used only in object buffer*/
+                  int            XMT_ack_fifo_lost_acks;      /*number of lost ACK - object buffer only*/
+                  int            XMT_rmt_fifo_lost_remotes;   /*number of lost remote frames - object buffer only*/
+                  int            Bus_state;                   /*CAN bus state (ERROR ACTIVE, ERROR PASSIVE or BUS OFF*/
+                  int            Error_state;                 /* meaning depends on the platform, see CANL2_read_ac() */
+                  int            Can;                         /*CAN channel handle*/
+                  unsigned long  Time;                        /*Timestamp*/
+                } PARAM_STRUCT;
+
+//                 used together with CANL2_initialize_fifo_mode()
+typedef struct 
+{
+  double fBaudrate;          /*baudrate*/
+  long s32Prescaler;         /* prescaler*/
+  long s32Tseg1;            /* time segment 1*/
+  long s32Tseg2;              /*time segment 2*/
+  long s32Sjw;               /* SJW*/
+  long s32Sam;               /* samples */
+  long s32AccCodeStd;        /* acceptance code for 11 bit identifier */
+  long s32AccMaskStd;        /* acceptance mask for 11 bit identifier */
+  long s32AccCodeXtd;        /* acceptance code for 29 bit identifier */
+  long s32AccMaskXtd;        /* acceptance mask for 29 bit identifier */
+  long s32OutputCtrl;        /* output control register */
+  BOOL    bEnableAck;        /* enable receiving of ACK */
+  BOOL    bEnableErrorframe; /* enable receiving of error frames*/
+  HANDLE  hEvent;            /* Windows event: set in case of an CAN event */
+} L2CONFIG;
+
+/*
 typedef struct canl2_ch_s {
     CAN_HANDLE     ulChannelHandle;
     unsigned char  sChannelName[80];
 } CANL2_CH_STRUCT;
+*/
 
-typedef struct  {
-                  unsigned long  Ident;
-                  int            DataLength;
-                  int            RecOverrun_flag;
-                  int            RCV_fifo_lost_msg;
-                  unsigned char  RCV_data[8];
-                  int            AckOverrun_flag;
-                  int            XMT_ack_fifo_lost_acks;
-                  int            XMT_rmt_fifo_lost_remotes;
-                  int            Bus_state;
-                  int            Error_state;
-                  int            Can;
-                  unsigned long  Time;
-                } PARAM_STRUCT;
-
-typedef struct 
-{
-  double fBaudrate;
-  long s32Prescaler;
-  long s32Tseg1;
-  long s32Tseg2;
-  long s32Sjw;
-  long s32Sam;
-  long s32AccCodeStd;
-  long s32AccMaskStd;
-  long s32AccCodeXtd;
-  long s32AccMaskXtd;
-  long s32OutputCtrl;
-  BOOL    bEnableAck;
-  BOOL    bEnableErrorframe;
-  HANDLE  hEvent;
-} L2CONFIG;
-
-
+// used for custom led control
 typedef struct
 {
   unsigned char live_time; // number of 200ms ticks
@@ -147,18 +145,14 @@ typedef struct
 
 typedef struct
 {
-  unsigned short number_of_substates;
+  unsigned short number_of_substates; // the led states will be set cyclicaly: after the last state the system starts with the first state.
 
   LED_SUBSTATE substate[15];
 
 } LED_FEATURE;
 
 
-#ifdef WIN32
 #pragma pack(pop)                    /* reset pack alignment to prev. value */
-#else
-#pragma pack()                       /* reset pack alignment to default     */
-#endif
 
 #ifndef _ERROR_BASES_
 #define _ERROR_BASES_
@@ -627,6 +621,8 @@ PRAEDEF int MIDDEF CANL2_read_signals  (CAN_HANDLE Can, unsigned long *pulChanne
 
 PRAEDEF int MIDDEF CANL2_write_signals  (CAN_HANDLE Can, unsigned long pulChannelWrite, 
                                           unsigned long ulCareMask);
+
+PRAEDEF int MIDDEF CANL2_enable_delayed_poll_mode  (CAN_HANDLE Can, unsigned short delay);
 
 
 #endif  /*_CANL2_H */

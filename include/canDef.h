@@ -92,7 +92,6 @@ typedef struct{
 
 ////////////////////////////////////////////////
 //   Define Motor State
-
 #define SYSTEM_ON		0x01 
 #define SYSTEM_OFF		0x02
 #define MOTOR_RUN		0x04
@@ -106,7 +105,6 @@ typedef struct{
 
 ////////////////////////////////////////////////
 //   Define AHRS Data Rate&Mask
-
 #define AHRS_RATE_1Hz	0x00 
 #define AHRS_RATE_10Hz	0x01 
 #define AHRS_RATE_20Hz	0x02 

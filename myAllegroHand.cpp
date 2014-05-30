@@ -378,6 +378,8 @@ bool OpenCAN()
 	CAN_Ch = GetCANChannelIndex(_T("USBBUS1"));
 #elif defined(IXXATCAN)
 	CAN_Ch = 1;
+#elif defined(SOFTINGCAN)
+	CAN_Ch = 1;
 #else
 	CAN_Ch = 1;
 #endif

@@ -252,7 +252,6 @@ int get_message(int ch, char* cmd, char* src, char* des, int* len, unsigned char
 		hResult = canChannelReadMessage(hCanChn[ch-1], INFINITE, &sCanMsg);
 	else
 		hResult = canChannelPeekMessage(hCanChn[ch-1], &sCanMsg);
-		
 	
 	if (hResult == VCI_OK)
 	{

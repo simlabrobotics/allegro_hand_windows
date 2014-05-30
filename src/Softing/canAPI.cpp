@@ -41,6 +41,65 @@ const char* szCanDevType[] = {
 	"EDICcard2",
 };
 
+// gets the device name from the device type
+char *getDeviceType(int u32DeviceType)
+{
+  static char u8Type[100];
+
+  switch(u32DeviceType)
+  {
+  case D_CANCARD2:
+    strcpy(u8Type,"CANcard2");
+    break;
+
+  case D_CANACPCI:
+    strcpy(u8Type,"CAN-AC PCI");
+    break;
+
+  case D_CANACPCIDN:
+    strcpy(u8Type,"CAN-AC PCI/DN");
+    break;
+
+  case D_CANAC104:
+    strcpy(u8Type,"CAN-AC PC/104");
+    break;
+
+  case D_CANUSB:
+    strcpy(u8Type,"CANusb");
+    break;
+
+  case D_EDICCARD2:
+    strcpy(u8Type,"EDICcard2");
+    break;
+
+  case D_CANPROXPCIE:
+    strcpy(u8Type,"CANpro PCI Express");
+    break;
+
+  case D_CANPROX104:
+    strcpy(u8Type,"CANpro PC/104plus");
+    break;
+
+  case D_CANECO104:
+    strcpy(u8Type,"CAN-ECOx-104");
+    break;
+
+  case D_CANFANUPC8:
+    strcpy(u8Type,"PC8 onboard CAN");
+    break;
+
+  case D_CANPROUSB:
+    strcpy(u8Type,"CANpro USB");
+    break;
+
+  default:
+    strcpy(u8Type,"UNKNOWN");
+    break;
+
+  }
+  return u8Type;
+}
+
 int canWrite(CAN_HANDLE handle,
 			 unsigned long id, 
 			 void * msg,
@@ -102,17 +161,6 @@ int command_can_open(int ch)
 //	}
 	
 	///////////////////////////////////////////////////////////////////////
-	// Set Acceptance
-//	ret = CANL2_set_acceptance(hCAN[ch-1], m_id, 0x7ff, m_id, 0x1fffffff);
-//	if (ret)
-//	{
-//		printf("\tError: CAN set acceptance\n");
-//		INIL2_close_channel(hCAN[ch-1]);
-//		hCAN[ch-1] = 0;
-//		return ret;
-//	}
-	
-	///////////////////////////////////////////////////////////////////////
 	// Set Out Control
 //	ret = CANL2_set_output_control(hCAN[ch-1], -1);
 
@@ -120,23 +168,38 @@ int command_can_open(int ch)
 	// Enable FIFO
 	L2CONFIG L2Config;
 	L2Config.fBaudrate = 1000.0;
-	L2Config.bEnableAck = 0;
-	L2Config.bEnableErrorframe = 0;
-	L2Config.s32AccCodeStd = 0;
-	L2Config.s32AccMaskStd = 0;
-	L2Config.s32AccCodeXtd = 0;
-	L2Config.s32AccMaskXtd = 0;
+	L2Config.bEnableAck = false;
+	L2Config.bEnableErrorframe = false;
+	L2Config.s32AccCodeStd = GET_FROM_SCIM;
+	L2Config.s32AccMaskStd = GET_FROM_SCIM;
+	L2Config.s32AccCodeXtd = GET_FROM_SCIM;
+	L2Config.s32AccMaskXtd = GET_FROM_SCIM;
 	L2Config.s32OutputCtrl = GET_FROM_SCIM;
-	L2Config.s32Prescaler = 1;
-	L2Config.s32Sam = 0;
-	L2Config.s32Sjw = 1;
-	L2Config.s32Tseg1 = 4;
-	L2Config.s32Tseg2 = 3;
+	L2Config.s32Prescaler = GET_FROM_SCIM;
+	L2Config.s32Sam = GET_FROM_SCIM;
+	L2Config.s32Sjw = GET_FROM_SCIM;
+	L2Config.s32Tseg1 = GET_FROM_SCIM;
+	L2Config.s32Tseg2 = GET_FROM_SCIM;
 	L2Config.hEvent = (void*)-1;
 	ret = CANL2_initialize_fifo_mode(hCAN[ch-1], &L2Config);
 	if (ret)
 	{
 		printf("\tError: CAN set fifo mode\n");
+		INIL2_close_channel(hCAN[ch-1]);
+		hCAN[ch-1] = 0;
+		return ret;
+	}
+
+	///////////////////////////////////////////////////////////////////////
+	// Set Acceptance (Filter)
+	ret = CANL2_set_acceptance(
+		hCAN[ch-1], 
+		((unsigned long)ID_DEVICE_MAIN <<3), 
+		0x038, 
+		0, 0x1fffffff);
+	if (ret)
+	{
+		printf("\tError: CAN set acceptance\n");
 		INIL2_close_channel(hCAN[ch-1]);
 		hCAN[ch-1] = 0;
 		return ret;
@@ -152,6 +215,57 @@ int command_can_open_ex(int ch, int type, int index)
 	assert(index >= 1 && index <= 8);
 
 	int ret = 0;
+	PCHDSNAPSHOT pBuffer = NULL;
+	unsigned long u32NeededBufferSize, u32NumOfChannels, u32ProvidedBufferSize, channelIndex;
+	int sw_version, fw_version, hw_version, license, chip_type;
+
+	////////////////////////////////////////////////////////////////////////
+	// Set buffer size
+	u32ProvidedBufferSize = 0;
+
+	// call the function without a valid buffer size first to get the needed buffersize in "u32NeededBufferSize"
+	ret = CANL2_get_all_CAN_channels(0, &u32NeededBufferSize, &u32NumOfChannels, NULL);
+
+	if(!u32NumOfChannels)
+	{
+		printf("you have no Softing CAN interface card plugged in your Computer!\n");
+		printf("plug a interface card first and start this program again after this.\n");
+		return -1;
+	}
+	if(ret)
+	{
+		printf("The driver reported a problem: Error Code %x\n", ret);
+		return -1;
+	}
+
+	pBuffer = (PCHDSNAPSHOT)malloc(u32NeededBufferSize);
+	u32ProvidedBufferSize = u32NeededBufferSize;
+
+	ret = CANL2_get_all_CAN_channels(u32ProvidedBufferSize, &u32NeededBufferSize, &u32NumOfChannels, pBuffer);
+
+	if(ret)
+	{
+		printf("The driver reported a problem: Error Code %x\n", ret);
+		return -1;
+	}
+
+	printf("You have %u Softing CAN channels in your system\n\n", u32NumOfChannels);
+
+	printf("\tname\t\t serialnumber\t type\t\t chan.\t    open\n");
+	printf("------------------------------------------------------------------------\n");
+	printf("\n");
+
+	for (channelIndex=0; channelIndex<u32NumOfChannels; channelIndex++)
+	{
+		PCHDSNAPSHOT pCh = &pBuffer[channelIndex];
+
+		printf("% 17s\t %09u  % 18s\t %2u\t % 5s\n",
+			pCh->ChannelName,
+			pCh->u32Serial,
+			getDeviceType(pCh->u32DeviceType),
+			pCh->u32PhysCh,
+			(pCh->bIsOpen) ? "yes" : "no");
+	}
 
 	////////////////////////////////////////////////////////////////////////
 	// Init Channel
@@ -211,24 +325,13 @@ int command_can_open_ex(int ch, int type, int index)
 //	}
 	
 	///////////////////////////////////////////////////////////////////////
-	// Set Acceptance
-//	ret = CANL2_set_acceptance(hCAN[ch-1], m_id, 0x7ff, m_id, 0x1fffffff);
-//	if (ret)
-//	{
-//		printf("\tError: CAN set acceptance\n");
-//		INIL2_close_channel(hCAN[ch-1]);
-//		hCAN[ch-1] = 0;
-//		return ret;
-//	}
-	
-	///////////////////////////////////////////////////////////////////////
 	// Set Out Control
 //	ret = CANL2_set_output_control(hCAN[ch-1], -1);
 	
 	///////////////////////////////////////////////////////////////////////
 	// Enable FIFO
 	L2CONFIG L2Config;
-	//L2Config.fBaudrate = 1000.0;
+	L2Config.fBaudrate = 1000.0;
 	L2Config.bEnableAck = false;
 	L2Config.bEnableErrorframe = false;
 	L2Config.s32AccCodeStd = GET_FROM_SCIM;
@@ -241,11 +344,42 @@ int command_can_open_ex(int ch, int type, int index)
 	L2Config.s32Sjw = GET_FROM_SCIM;
 	L2Config.s32Tseg1 = GET_FROM_SCIM;
 	L2Config.s32Tseg2 = GET_FROM_SCIM;
-	//L2Config.hEvent = (void*)-1;
+	L2Config.hEvent = (void*)-1;
 	ret = CANL2_initialize_fifo_mode(hCAN[ch-1], &L2Config);
 	if (ret)
 	{
 		printf("\tError: CAN set fifo mode\n");
+		INIL2_close_channel(hCAN[ch-1]);
+		hCAN[ch-1] = 0;
+		return ret;
+	}
+
+	///////////////////////////////////////////////////////////////////////
+	// Print driver version info
+	ret = CANL2_get_version(hCAN[ch-1], &sw_version, &fw_version, &hw_version, &license, &chip_type);
+	if (ret)
+	{
+		printf("Error %u in CANL2_get_version()\n",ret);
+	}
+	else
+	{
+		printf("\n VERSION INFO: \n\n");
+		printf("    - Software version: %u.%02u\n", sw_version/100, sw_version%100);
+		printf("    - Firmware version: %u.%02u\n", fw_version/100, fw_version%100);
+		printf("    - Hardware version: %x.%02x\n", hw_version/0x100, hw_version%0x100);
+		printf("    - CAN chip        : %s\n", (chip_type==1000)? "SJA1000": (chip_type==161) ? "Infineon XC161" : "Infineon XE164");
+	}
+
+	///////////////////////////////////////////////////////////////////////
+	// Set Acceptance (Filter)
+	ret = CANL2_set_acceptance(
+		hCAN[ch-1], 
+		((unsigned long)ID_DEVICE_MAIN <<3), 
+		0x038, 
+		0, 0x1fffffff);
+	if (ret)
+	{
+		printf("\tError: CAN set acceptance\n");
 		INIL2_close_channel(hCAN[ch-1]);
 		hCAN[ch-1] = 0;
 		return ret;

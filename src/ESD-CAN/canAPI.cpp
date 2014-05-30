@@ -88,6 +88,8 @@ int initCAN(int bus){
 	allowMessage(bus, Txid, 0);
 	Txid = ((unsigned long)(ID_CMD_QUERY_CONTROL_DATA) <<6) | ((unsigned long)ID_DEVICE_MAIN <<3) | ((unsigned long)ID_DEVICE_SUB_04);
 	allowMessage(bus, Txid, 0);
+	Txid = ((unsigned long)(ID_DEVICE_MAIN)<<3) | ((unsigned long)ID_COMMON);
+	allowMessage(bus, Txid, 0x38);
 	
     return(0);
 }
@@ -205,7 +207,7 @@ int command_can_query_id(int ch)
 
 	long Txid;
 	unsigned char data[8];
-	canStatus ret;
+	int ret;
 
 	Txid = ((unsigned long)ID_CMD_QUERY_ID<<6) | ((unsigned long)ID_COMMON <<3) | ((unsigned long)ID_DEVICE_MAIN);
 	ret = canSendMsg(ch, Txid, 0, data, TRUE);

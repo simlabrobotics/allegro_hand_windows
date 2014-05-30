@@ -53,6 +53,7 @@ enum eMotionType
 	eMotionType_ENVELOP,			///< enveloping
 	eMotionType_JOINT_PD,			///< joint pd control
 	eMotionType_MOVE_OBJ,
+	eMotionType_FINGERTIP_MOVING,
 	NUMBER_OF_MOTION_TYPE
 };
 
@@ -160,7 +161,7 @@ public:
 	 * @param set_scalar will be multiplied by the pre-computed grasping torque
 	 * at each joint. Default is one to rest the torque to its original value
 	 */
-	void BHand::SetEnvelopTorqueScalar(double set_scalar=1.0);
+	void SetEnvelopTorqueScalar(double set_scalar=1.0);
 
 	/**
 	 * Get desired grasping forces.
@@ -170,13 +171,21 @@ public:
 	 */
 	void GetGraspingForce(double fx[4], double fy[4], double fz[4]);
 
+	/**
+	 * An attempt on object moving
+	 */
+	void SetObjectDisp(double x_d_o[3]);
 
 	/**
-	* An attempt on object moving
-	*/
-	void BHand::SetObjectDisp(double x_d_o[3]);
-	void BHand::MoveFingerTip(double disp_0[3], double disp_1[3], double disp_2[3], double disp_3[3]);
+	 * An attempt on object moving
+	 */
+	void MoveFingerTip(double set_xyz_0[3], double set_xyz_1[3], double set_xyz_2[3], double set_xyz_3[3]);
 
+	/**
+	 * Set orientation
+	 */
+	void SetOrientation(double roll, double pitch, double yaw);
+	void SetOrientation(double R[9]);
 
 
 private:
@@ -189,6 +198,7 @@ private:
 	//void CalculateJacobianLeft();
 	//void CalculateJacobianRight();
 	void CalculateGravity();
+	void CalculateGravityEx();
 	//void CalculateGravityLeft();
 	//void CalculateGravityRight();
 
@@ -202,6 +212,7 @@ private:
 	void Motion_PinchIT();
 	void Motion_PinchMT();
 	void Motion_ObjectMoving();
+	void Motion_FingertipMoving();
 	void Motion_Envelop();
 	void Motion_JointPD();
 
@@ -258,6 +269,8 @@ private:
 
 	double _f_des[NOF];					///< desired force
 
+	double _R[9];						///< body(palm) orientation
+
 	double x_d_object;
 	double y_d_object;
 	double z_d_object;
@@ -269,6 +282,10 @@ private:
 	double _x_des[NOF];					///< desired x position in cartesian coordinate for the center of each finger tip
 	double _y_des[NOF];					///< desired y position in cartesian coordinate for the center of each finger tip
 	double _z_des[NOF];					///< desired z position in cartesian coordinate for the center of each finger tip
+
+	double _set_x_des[NOF];				// Set by user in MoveFingerTip 
+	double _set_y_des[NOF];				// Set by user in MoveFingerTip
+	double _set_z_des[NOF];				// Set by user in MoveFingerTip
 
 	double S1_C[NOJ], S2_C[NOJ], S3_C[NOJ], S4_C[NOJ], S23_C[NOJ], S234_C[NOJ], S34_C[NOJ];
 	double C1_C[NOJ], C2_C[NOJ], C3_C[NOJ], C4_C[NOJ], C23_C[NOJ], C234_C[NOJ], C34_C[NOJ];
