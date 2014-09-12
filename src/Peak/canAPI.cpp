@@ -379,6 +379,10 @@ int get_message(int ch, char* cmd, char* src, char* des, int* len, unsigned char
 	err = canReadMsg(ch, (int*)&Rxid, len, data, blocking);
 	if (!err)
 	{
+		/*printf("    %ld+%ld (%d)", Rxid-Rxid%128, Rxid%128, len);
+		for(int nd=0; nd<(*len); nd++) printf(" %3d ", data[nd]);
+		printf("\n");*/
+
 		*cmd = (char)( (Rxid >> 6) & 0x1f );
 		*des = (char)( (Rxid >> 3) & 0x07 );
 		*src = (char)( Rxid & 0x07);

@@ -36,7 +36,7 @@ double tau_des[MAX_DOF];
 double cur_des[MAX_DOF];
 
 // USER HAND CONFIGURATION
-const bool	RIGHT_HAND = false;
+const bool	RIGHT_HAND = true;
 const int	HAND_VERSION = 3;
 
 const double tau_cov_const_v2 = 800.0; // 800.0 for SAH020xxxxx
@@ -85,11 +85,23 @@ const double motor_dir[MAX_DOF] = { // SAH030xxxxx
 //	-3763, 782, -3402, 368,
 //	1059, -2547, -692, 2411
 //};
-const int enc_offset[MAX_DOF] = { // SAH030AL026
-	-647, 1776, -198, -2132,
-	3335, 350, -3093, 468,
-	-14, 1499, -2176, -960,
-	-196, -367, 4, -1380
+//const int enc_offset[MAX_DOF] = { // SAH030AL025
+//	-21, 617, -123, -2613,
+//	-57, 2265, -270, 284,
+//	2055, 1763, 1683, -2427,
+//	870, -856, 2143, 59
+//};
+//const int enc_offset[MAX_DOF] = { // SAH030AL026
+//	-647, 1776, -198, -2132,
+//	3335, 350, -3093, 468,
+//	-14, 1499, -2176, -960,
+//	-196, -367, 4, -1380
+//};
+const int enc_offset[MAX_DOF] = { // SAH030BR027
+	849, 240, 392, -4099,
+	532, 512, -1062, -853,
+	-512, -130, -1837, 2565,
+	853, -2355, 665, 109
 };
 
 
@@ -138,33 +150,33 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 
 			case ID_CMD_AHRS_POSE:
 				{
-					printf(">CAN(%d): AHRS Roll : 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
+					/*printf(">CAN(%d): AHRS Roll : 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
 					printf("               Pitch: 0x%02x%02x\n", data[2], data[3]);
-					printf("               Yaw  : 0x%02x%02x\n", data[4], data[5]);
+					printf("               Yaw  : 0x%02x%02x\n", data[4], data[5]);*/
 				}
 				break;
 
 			case ID_CMD_AHRS_ACC:
 				{
-					printf(">CAN(%d): AHRS Acc(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
+					/*printf(">CAN(%d): AHRS Acc(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
 					printf("               Acc(y): 0x%02x%02x\n", data[2], data[3]);
-					printf("               Acc(z): 0x%02x%02x\n", data[4], data[5]);
+					printf("               Acc(z): 0x%02x%02x\n", data[4], data[5]);*/
 				}
 				break;
 
 			case ID_CMD_AHRS_GYRO:
 				{
-					printf(">CAN(%d): AHRS Angular Vel(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
+					/*printf(">CAN(%d): AHRS Angular Vel(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
 					printf("               Angular Vel(y): 0x%02x%02x\n", data[2], data[3]);
-					printf("               Angular Vel(z): 0x%02x%02x\n", data[4], data[5]);
+					printf("               Angular Vel(z): 0x%02x%02x\n", data[4], data[5]);*/
 				}
 				break;
 
 			case ID_CMD_AHRS_MAG:
 				{
-					printf(">CAN(%d): AHRS Magnetic Field(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
+					/*printf(">CAN(%d): AHRS Magnetic Field(x): 0x%02x%02x\n", CAN_Ch, data[0], data[1]);
 					printf("               Magnetic Field(y): 0x%02x%02x\n", data[2], data[3]);
-					printf("               Magnetic Field(z): 0x%02x%02x\n", data[4], data[5]);
+					printf("               Magnetic Field(z): 0x%02x%02x\n", data[4], data[5]);*/
 				}
 				break;
 
@@ -380,6 +392,8 @@ bool OpenCAN()
 	CAN_Ch = 1;
 #elif defined(SOFTINGCAN)
 	CAN_Ch = 1;
+#elif defined(NICAN)
+	CAN_Ch = 0;
 #else
 	CAN_Ch = 1;
 #endif
