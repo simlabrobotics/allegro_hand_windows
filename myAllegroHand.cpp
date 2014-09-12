@@ -12,6 +12,17 @@
 #include "BHand/BHand.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+// IMPORTANT !!
+// SET CORRECT HAND PARAMETER HERE BEFORE RUNNING THIS PROGRAM.
+const bool	RIGHT_HAND = false;
+const int	HAND_VERSION = 3;
+const bool	DC_24V = true;
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
 // for CAN communication
 const double delT = 0.003;
 int CAN_Ch = 0;
@@ -35,12 +46,14 @@ double q_des[MAX_DOF];
 double tau_des[MAX_DOF];
 double cur_des[MAX_DOF];
 
-// USER HAND CONFIGURATION
-const bool	RIGHT_HAND = true;
-const int	HAND_VERSION = 3;
+/////////////////////////////////////////////////////////////////////////////////////////
+// Hand parameters
 
 const double tau_cov_const_v2 = 800.0; // 800.0 for SAH020xxxxx
 const double tau_cov_const_v3 = 1200.0; // 1200.0 for SAH030xxxxx
+
+const short pwm_max_DC8V = 800; // 1200 is max
+const short pwm_max_DC24V = 500;
 
 //const double enc_dir[MAX_DOF] = { // SAH020xxxxx
 //	1.0, -1.0, 1.0, 1.0,
@@ -85,24 +98,24 @@ const double motor_dir[MAX_DOF] = { // SAH030xxxxx
 //	-3763, 782, -3402, 368,
 //	1059, -2547, -692, 2411
 //};
-//const int enc_offset[MAX_DOF] = { // SAH030AL025
-//	-21, 617, -123, -2613,
-//	-57, 2265, -270, 284,
-//	2055, 1763, 1683, -2427,
-//	870, -856, 2143, 59
-//};
+const int enc_offset[MAX_DOF] = { // SAH030AL025
+	-21, 617, -123, -2613,
+	-57, 2265, -270, 284,
+	2055, 1763, 1683, -2427,
+	870, -856, 2143, 59
+};
 //const int enc_offset[MAX_DOF] = { // SAH030AL026
 //	-647, 1776, -198, -2132,
 //	3335, 350, -3093, 468,
 //	-14, 1499, -2176, -960,
 //	-196, -367, 4, -1380
 //};
-const int enc_offset[MAX_DOF] = { // SAH030BR027
-	849, 240, 392, -4099,
-	532, 512, -1062, -853,
-	-512, -130, -1837, 2565,
-	853, -2355, 665, 109
-};
+//const int enc_offset[MAX_DOF] = { // SAH030BR027
+//	849, 240, 392, -4099,
+//	532, 512, -1062, -853,
+//	-512, -130, -1837, 2565,
+//	853, -2355, 665, 109
+//};
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -228,8 +241,22 @@ static unsigned int __stdcall ioThreadProc(void* inst)
 									vars.pwm_demand[i*4+3] = (short)(cur_des[i*4+0]*tau_cov_const_v3);
 									vars.pwm_demand[i*4+2] = (short)(cur_des[i*4+1]*tau_cov_const_v3);
 									vars.pwm_demand[i*4+1] = (short)(cur_des[i*4+2]*tau_cov_const_v3);
-									vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*tau_cov_const_v3);	
+									vars.pwm_demand[i*4+0] = (short)(cur_des[i*4+3]*tau_cov_const_v3);
 									break;
+							}
+
+							if (DC_24V) {
+								for (int j=0; j<4; j++) {
+									if (vars.pwm_demand[i*4+j] > pwm_max_DC24V) vars.pwm_demand[i*4+j] = pwm_max_DC24V;
+									else if (vars.pwm_demand[i*4+j] < -pwm_max_DC24V) vars.pwm_demand[i*4+j] = -pwm_max_DC24V;
+								}
+							} 
+							else {
+								for (int j=0; j<4; j++) {
+									if (vars.pwm_demand[i*4+j] > pwm_max_DC8V) vars.pwm_demand[i*4+j] = pwm_max_DC8V;
+									else if (vars.pwm_demand[i*4+j] < -pwm_max_DC8V) vars.pwm_demand[i*4+j] = -pwm_max_DC8V;
+								}
+
 							}
 
 							write_current(CAN_Ch, i, &vars.pwm_demand[4*i]);
