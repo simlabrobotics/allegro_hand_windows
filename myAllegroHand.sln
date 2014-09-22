@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myAllegroHand", "myAllegroH
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		EasySYNC Debug|Win32 = EasySYNC Debug|Win32
+		EasySYNC Release|Win32 = EasySYNC Release|Win32
 		ESD Debug|Win32 = ESD Debug|Win32
 		ESD Release|Win32 = ESD Release|Win32
 		IXXAT Debug|Win32 = IXXAT Debug|Win32
@@ -19,6 +21,10 @@ Global
 		Softing Release|Win32 = Softing Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EA8B366-194E-411B-A872-5DE961E92066}.EasySYNC Debug|Win32.ActiveCfg = EasySYNC Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.EasySYNC Debug|Win32.Build.0 = EasySYNC Debug|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.EasySYNC Release|Win32.ActiveCfg = EasySYNC Release|Win32
+		{1EA8B366-194E-411B-A872-5DE961E92066}.EasySYNC Release|Win32.Build.0 = EasySYNC Release|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.ESD Debug|Win32.ActiveCfg = ESD Debug|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.ESD Debug|Win32.Build.0 = ESD Debug|Win32
 		{1EA8B366-194E-411B-A872-5DE961E92066}.ESD Release|Win32.ActiveCfg = ESD Release|Win32
