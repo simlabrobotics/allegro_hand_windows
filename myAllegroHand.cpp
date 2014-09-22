@@ -15,9 +15,15 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 // IMPORTANT !!
 // SET CORRECT HAND PARAMETER HERE BEFORE RUNNING THIS PROGRAM.
-const bool	RIGHT_HAND = false;
+//#define SAH020
+#define SAH030
+const bool	RIGHT_HAND = true;
+const bool	DC_24V = false;
+#if defined SAH020
+const int	HAND_VERSION = 2;
+#elif defined SAH030
 const int	HAND_VERSION = 3;
-const bool	DC_24V = true;
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -55,6 +61,7 @@ const double tau_cov_const_v3 = 1200.0; // 1200.0 for SAH030xxxxx
 const short pwm_max_DC8V = 800; // 1200 is max
 const short pwm_max_DC24V = 500;
 
+#if defined SAH020
 //const double enc_dir[MAX_DOF] = { // SAH020xxxxx
 //	1.0, -1.0, 1.0, 1.0,
 //	1.0, -1.0, 1.0, 1.0,
@@ -80,6 +87,8 @@ const short pwm_max_DC24V = 500;
 //	 1124,	-1319,	-65983, -65566
 //};
 
+#elif defined SAH030
+
 const double enc_dir[MAX_DOF] = { // SAH030xxxxx
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0,
@@ -92,18 +101,24 @@ const double motor_dir[MAX_DOF] = { // SAH030xxxxx
 	1.0, 1.0, 1.0, 1.0,
 	1.0, 1.0, 1.0, 1.0
 };
+const int enc_offset[MAX_DOF] = { // SAH020BR015 (upgrated to version 3)
+	 296,	 189,	 2652,	-509,
+	-16,	 302,	 1005,	 1903,
+	 1499,	 1034,	-1232,	 1012,
+	 470,	-6,	    -76,     145
+};
 //const int enc_offset[MAX_DOF] = { // SAH030AR023
 //	-1700, -568, -3064, -36,
 //	-2015, -1687, 188, -772,
 //	-3763, 782, -3402, 368,
 //	1059, -2547, -692, 2411
 //};
-const int enc_offset[MAX_DOF] = { // SAH030AL025
-	-21, 617, -123, -2613,
-	-57, 2265, -270, 284,
-	2055, 1763, 1683, -2427,
-	870, -856, 2143, 59
-};
+//const int enc_offset[MAX_DOF] = { // SAH030AL025
+//	-21, 617, -123, -2613,
+//	-57, 2265, -270, 284,
+//	2055, 1763, 1683, -2427,
+//	870, -856, 2143, 59
+//};
 //const int enc_offset[MAX_DOF] = { // SAH030AL026
 //	-647, 1776, -198, -2132,
 //	3335, 350, -3093, 468,
@@ -117,6 +132,7 @@ const int enc_offset[MAX_DOF] = { // SAH030AL025
 //	853, -2355, 665, 109
 //};
 
+#endif
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // sample motions
